@@ -1,0 +1,59 @@
+# Python
+*.py[cod]
+__pycache__/
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.pyc
+
+# FastAPI
+env/
+venv/
+instance/
+.env
+.venv
+*.log
+
+# Cache
+*.cache
+*.mypy_cache/
+*.pytest_cache/
+.cache
+
+# Kafka
+kafka-logs/
+zookeeper/
+
+# Websockets
+websockets_log/
+
+# Pytest
+htmlcov/
+.coverage
+.tox
+.pytest_cache/
+
+# Docker
+docker-compose.override.yml
+.dockerignore
+docker_compose/Dockerfile
+
+# PyCharm specific
+.idea/
+*.iml
+*.iws
+out/
+
+# Virtualenv
+.env/
+.venv/
+pip-log.txt
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# OS generated files
+.DS_Store
+Thumbs.db
