@@ -11,7 +11,6 @@ class Text(BaseValueObject):
     def validate(self):
         if not self.value:
             raise EmptyTextxException(self.value)
-        # return super().validate()
 
     def as_generic_type(self):
         return str(self.value)
@@ -26,7 +25,6 @@ class Title(BaseValueObject):
             raise EmptyTextxException(self.value)
         if len(self.value) > 255:
             raise TitleToolLongException(self.value)
-        # return super().validate()
 
     def as_generic_type(self):
         return str(self.value)
