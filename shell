@@ -1,0 +1,11 @@
+from domain.entities.messages import Message
+from domain.values.messages import Text
+text = Text("Hello World")
+# wrong_text = Text("Hello World"*300)
+
+try:
+    wrong_text_2 = Text("Hello World"*300)
+except Exception as e:
+    print(e.message)
+
+message_1 = Message(text=text)

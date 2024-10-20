@@ -1,4 +1,5 @@
 DC = docker compose
+EXEC = docker exec -it
 LOGS = docker logs
 ENV = --env-file .env
 APP_FILE = docker_compose/app.yaml
@@ -11,6 +12,10 @@ app:
 .PHONY: app-down
 app-down:
 	$(DC) -f $(APP_FILE) down
+
+.PHONY: app-shell
+app-shell:
+	$(EXEC) $(APP_CONTAINER) /bin/bash
 
 .PHONY: app-logs
 app-logs:
