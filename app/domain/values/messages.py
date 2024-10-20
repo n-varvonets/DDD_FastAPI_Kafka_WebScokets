@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from domain.exceptions.messages import TextToolLongException, EmptyTextxError
+from domain.exceptions.messages import TitleToolLongException, EmptyTextxException
 from domain.values.base import BaseValueObject
 
 
@@ -10,7 +10,7 @@ class Text(BaseValueObject):
 
     def validate(self):
         if not self.value:
-            raise EmptyTextxError(self.value)
+            raise EmptyTextxException(self.value)
         # return super().validate()
 
     def as_generic_type(self):
@@ -23,9 +23,9 @@ class Title(BaseValueObject):
 
     def validate(self):
         if not self.value:
-            raise EmptyTextxError(self.value)
+            raise EmptyTextxException(self.value)
         if len(self.value) > 255:
-            raise TextToolLongException(self.value)
+            raise TitleToolLongException(self.value)
         # return super().validate()
 
     def as_generic_type(self):

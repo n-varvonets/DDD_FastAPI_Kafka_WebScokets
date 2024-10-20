@@ -11,6 +11,8 @@ fastapi = "^0.115.2"
 motor = "^3.3.2"
 uvicorn = {extras = ["all"], version = "^0.32.0"}
 ipython = "^8.28.0"
+pytest = "^8.3.3"
+faker = "^30.6.0"
 
 [build-system]
 requires = ["poetry-core"]

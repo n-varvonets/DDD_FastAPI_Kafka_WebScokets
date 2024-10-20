@@ -3,7 +3,7 @@ from domain.exceptions.base import ApplicationException
 
 
 @dataclass(eq=False)
-class TextToolLongException(ApplicationException):
+class TitleToolLongException(ApplicationException):
     text: str
 
     @property
@@ -12,7 +12,7 @@ class TextToolLongException(ApplicationException):
 
 
 @dataclass(eq=False)
-class EmptyTextxError(ApplicationException):
+class EmptyTextxException(ApplicationException):
     text: str
 
     @property
