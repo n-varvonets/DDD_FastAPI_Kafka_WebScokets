@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from domain.entities.base import BaseEntity
 from domain.events.messages import NewMessageReceivedEvent
 from domain.values.messages import Text, Title
+from logic.events.messages import NewChatCreatedEvent
 
 
 @dataclass
@@ -23,7 +24,8 @@ class Chat(BaseEntity):
     messages: list[Message] = field(
         default_factory=list,
         kw_only=True,
-    )  # при создании нового объекта Chat, если для поля messages не будет передано значение, оно будет инициализировано пустым списком
+    )
+    # при создании нового объекта Chat, если для поля messages не будет передано значение, оно будет инициализировано пустым списком
     # нельзя просто передать default=[], mutable types в аргументах
     # Какие еще значения могут быть?
     # - set[Message]  - сключает дубликаты. Множество можно использовать, если важно, чтобы одно и то же сообщение
@@ -45,6 +47,7 @@ class Chat(BaseEntity):
     # Например, каждый ключ может быть уникальным идентификатором сообщения (например, oid), а значение — объектом Message.
     # Это позволяет эффективно организовать доступ к сообщениям по ключу, обеспечивая быструю навигацию.
 
+
     def add_message(self, message: Message):
         self.messages.append(message)
         self.register_event(
@@ -54,6 +57,17 @@ class Chat(BaseEntity):
                 message_oid=message.oid,
             )
         )  # передаем event обьект (NewMessageReceivedEvent)
+
+    @classmethod
+    def create_chat(cls, title: Title) -> 'Chat':
+        new_chat = cls(title=title)
+        new_chat.register_event(NewChatCreatedEvent(
+            chat_oid=new_chat.oid,
+            chat_title=new_chat.title.as_generic_type(),
+        ))  # register_event находится в BaseEntity
+
+        return new_chat
+
 
 
 
