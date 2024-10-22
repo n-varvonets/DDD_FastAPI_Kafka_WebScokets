@@ -4,7 +4,7 @@ from logic.exceptions.base import LogicException
 
 
 @dataclass(eq=False)
-class ChatWithThatTitleAlreadyExits(LogicException):
+class ChatWithThatTitleAlreadyExitsException(LogicException):
     title: str
     @property
     def message(self):
