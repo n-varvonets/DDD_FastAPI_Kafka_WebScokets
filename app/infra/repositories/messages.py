@@ -18,6 +18,11 @@ class BaseChatRepository(ABC):
 
 @dataclass
 class MemoryChatRepository(ABC):
+    """
+    MemoryChatRepository — это конкретная реализация, которая хранит данные в памяти.
+    Это может быть полезно для тестирования или работы с небольшими данными.
+    """
+
     # class MemoryChatRepository(BaseChatRepository):
     _saved_chats: list[Chat] = field(
         default_factory=list,

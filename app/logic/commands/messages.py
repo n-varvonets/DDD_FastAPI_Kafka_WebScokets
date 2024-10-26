@@ -16,6 +16,12 @@ class CreateChatCommand(BaseCommand):
 
 @dataclass(frozen=True)
 class CreateChatCommandHandler(CommandHandler[CreateChatCommand, Chat]):
+    """
+    CommandHandler[CreateChatCommand, Chat] представляет собой типизированный обработчик команд,
+    где CommandHandler — это обобщённый класс, который параметризован двумя типами:
+        - CreateChatCommand указывает тип команды, которую обрабатывает данный обработчик.
+        - Chat указывает тип результата, который возвращает метод handle.
+    """
     chat_repository: BaseChatRepository
 
     # def handle(self, command: CreateChatCommand) -> Chat:
