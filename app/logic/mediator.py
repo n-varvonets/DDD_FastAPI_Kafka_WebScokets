@@ -36,7 +36,7 @@ class Mediator:
         # Получаем класс события и добавляем обработчик в список для данного типа событий
         self.events_map[event].extend(event_handlers)
 
-    def register_command(self, command: CT, command_handlers: Iterable[EventHandler[CT, CR]]) -> None:
+    def register_command(self, command: CT, command_handlers: Iterable[CommandHandler[CT, CR]]) -> None:
         """
         Регистрирует обработчик команды.
         - command: тип команды (CT).

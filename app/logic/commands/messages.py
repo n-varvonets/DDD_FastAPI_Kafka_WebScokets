@@ -14,6 +14,7 @@ class CreateChatCommand(BaseCommand):
 
     title: str
 
+
 @dataclass(frozen=True)
 class CreateChatCommandHandler(CommandHandler[CreateChatCommand, Chat]):
     """

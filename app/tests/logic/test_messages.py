@@ -11,12 +11,13 @@ from logic.mediator import Mediator
 
 @pytest.mark.asyncio  # Маркировка теста как асинхронного, чтобы pytest мог корректно выполнять его
 async def test_create_chat_command_success(
-    chat_repository: BaseChatRepository,  # Фикстура репозитория чатов, в которую сохраняются данные чатов
-    mediator: Mediator,  # Фикстура медиатора, который управляет командами и их обработчиками
+    chat_repository: BaseChatRepository,  # Фикстура репозитория чатов, в которую сохраняются данные чатов - данный параметр уже реализуется в конфтесте
+    mediator: Mediator,  # Фикстура медиатора, который управляет командами и их обработчиками - данный параметр уже реализуется в конфтесте
         faker: Faker
 ):
     title_text = faker.text()
-    chat: Chat = (await mediator.handle_command(CreateChatCommand(title=title_text)))[0]
+    # chat: Chat = (await mediator.handle_command(CreateChatCommand(title=title_text)))[0]
+    chat, *_ = await mediator.handle_command(CreateChatCommand(title=title_text))
 
     # Проверка, что созданный чат действительно существует в репозитории.
     assert chat_repository.check_chat_exists_by_title(title=chat.title.as_generic_type())
@@ -24,8 +25,8 @@ async def test_create_chat_command_success(
 
 @pytest.mark.asyncio
 async def test_create_chat_command_title_already_exists(
-        chat_repository: BaseChatRepository,  # Репозиторий для работы с чатами
-        mediator: Mediator,  # Обработчик команд
+        chat_repository: BaseChatRepository,  # Репозиторий для работы с чатами - данный параметр уже реализуется в конфтесте
+        mediator: Mediator,  # Обработчик команд - данный параметр уже реализуется в конфтесте
         faker: Faker,  # Фейкер для генерации данных
 ):
     title_text = faker.text()
