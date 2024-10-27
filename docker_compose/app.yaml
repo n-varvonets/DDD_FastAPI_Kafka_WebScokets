@@ -4,30 +4,30 @@ services:
       context: ..
       dockerfile: docker_compose/Dockerfile
 
-    container_name: main-app
+    container_name: main-api
     ports:
       - "${API_PORT}:8000"
     command: "uvicorn --factory application.api.main:create_app --reload --host 0.0.0.0 --port 8000"
 
 
     # Используем --factory, так как create_app — это фабричный метод, который возвращает объект FastAPI.
-    # (рекомендовано для продакшена):  command: "gunicorn -w 4 -k uvicorn.workers.UvicornWorker app.application.api.main:app"
+    # (рекомендовано для продакшена):  command: "gunicorn -w 4 -k uvicorn.workers.UvicornWorker api.application.api.main:api"
 
     # --host 0.0.0.0: Это позволяет приложению принимать запросы на всех сетевых интерфейсах внутри контейнера, а не только на localhost (127.0.0.1).
     # Это необходимо, чтобы приложение, запущенное в контейнере Docker, было доступно извне через прокинутый порт.
-    working_dir: /app
+    working_dir: /api
     environment:
-      - PYTHONPATH=/app
+      - PYTHONPATH=/api
     env_file:
       - ../.env
     #    depends_on:  # utilizing MongoDBma
     #      - postgres
     volumes:
-      - ../app/:/app
+      - ../api/:/api
 
 
-      # ../app/: Прокидывание каталога с приложением из файловой системы хоста в контейнер.
+      # ../api/: Прокидывание каталога с приложением из файловой системы хоста в контейнер.
       # Это позволяет вам изменять код приложения на хосте, и Docker-контейнер будет использовать эти изменения без необходимости пересборки.
-      # Здесь ../app/ указывает, что приложение находится в директории на один уровень выше текущей директории Docker Compose файла.
+      # Здесь ../api/ указывает, что приложение находится в директории на один уровень выше текущей директории Docker Compose файла.
 
 
