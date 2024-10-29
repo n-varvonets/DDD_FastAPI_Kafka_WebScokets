@@ -1,0 +1,38 @@
+services:
+  mongodb:
+    container_name: chat-mongodb
+
+    image: mongo:6.0  # Используем официальный образ MongoDB версии 6.0
+    ports:
+      - "27017:27017"  # Пробрасываем стандартный порт MongoDB
+    volumes:
+      - dbdata6:/data/db  # Монтируем volume 'dbdata6' в '/data/db' внутри контейнера. В официальном образе Docker для MongoDB, по умолчанию данные базы данных хранятся в директории /data/db внутри контейнера.Это означает, что все данные, включая базы данных, коллекции и индексы, сохраняются в этой директории.
+      # dbdata6: Название volume может соответствовать версии MongoDB для удобства. Использование volume обеспечивает сохранение данных базы данных между перезапусками контейнера.
+
+    networks:
+      - backend  # Подключение к пользовательской сети backend позволяет контейнеру взаимодействовать с другими контейнерами в той же сети, обеспечивая изоляцию и безопасность.
+
+  # mongo db ui
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    restart: always
+    ports:
+      - "28081:8081"
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_DB_ADMIN_USERNAME}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_DB_ADMIN_PASSWORD}
+      ME_CONFIG_MONGODB_URL: mongodb://mongodb:27017/
+    depends_on:
+      - mongodb
+    networks:
+      - backend
+
+
+volumes:
+  dbdata6:  # Объявление volume dbdata6 необходимо для хранения данных MongoDB на хост-машине. Это гарантирует, что данные не потеряются при удалении или перезапуске контейнера.
+
+networks:
+  backend:
+    driver: bridge  # Драйвер bridge создает изолированную сеть для контейнеров, позволяя им общаться друг с другом. Это стандартный драйвер для сетей Docker.
