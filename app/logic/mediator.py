@@ -46,21 +46,30 @@ class Mediator:
         self.commands_map[command].extend(command_handlers)
 
     # def handle_event(self, event: BaseEvent) -> Iterable[ER]:
-    async def handle_event(self, event: BaseEvent) -> Iterable[ER]:
+    async def publish_event(self, events: Iterable[BaseEvent]) -> Iterable[ER]:
         """
+        Собранные в пачке ивенты он публиукет в Кафку
+
         Обрабатывает событие, находя соответствующий обработчик в events_map.
         - event: объект события (BaseEvent).
         """
-        event_type = event.__class__  # Получаем тип события
+        event_type = events.__class__  # Получаем тип события
         handlers = self.events_map.get(event_type)  # Получаем обработчики для данного типа события
 
         if not handlers:
             raise EventHandlersNotRegisteredException(event_type)  # Исключение, если нет зарегистрированных обработчиков
 
+        result = []
         # Вызываем метод handle у каждого обработчика
         # return [handler.handle(event) for handler in handlers]
-        return [await handler.handle(event) for handler in handlers]
+        # return [await handler.handle(event) for handler in handlers]
+        for event in events:
+            result.extend([await handler.handle(event) for handler in handlers])
+            # [выражение for элемент in итерируемый_объект]
+            # await Позволяет ждать результата асинхронного вызова без блокировки основного потока выполнения
+            # для асин метода (async def handle(self, event)) объекта handler
 
+        return result
 
     # def handle_command(self, command: BaseEvent) -> Iterable[CR]:
     async def handle_command(self, command: BaseCommand) -> Iterable[CR]:

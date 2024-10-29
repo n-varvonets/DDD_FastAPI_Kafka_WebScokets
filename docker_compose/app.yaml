@@ -4,7 +4,7 @@ services:
       context: ..
       dockerfile: docker_compose/Dockerfile
 
-    container_name: main-api
+    container_name: main-app
     ports:
       - "${API_PORT}:8000"
     command: "uvicorn --factory application.api.main:create_app --reload --host 0.0.0.0 --port 8000"
@@ -15,19 +15,25 @@ services:
 
     # --host 0.0.0.0: Это позволяет приложению принимать запросы на всех сетевых интерфейсах внутри контейнера, а не только на localhost (127.0.0.1).
     # Это необходимо, чтобы приложение, запущенное в контейнере Docker, было доступно извне через прокинутый порт.
-    working_dir: /api
+    working_dir: /app
     environment:
-      - PYTHONPATH=/api
+      - PYTHONPATH=/app
     env_file:
       - ../.env
     #    depends_on:  # utilizing MongoDBma
     #      - postgres
     volumes:
-      - ../api/:/api
+      - ../app/:/app
 
 
       # ../api/: Прокидывание каталога с приложением из файловой системы хоста в контейнер.
       # Это позволяет вам изменять код приложения на хосте, и Docker-контейнер будет использовать эти изменения без необходимости пересборки.
       # Здесь ../api/ указывает, что приложение находится в директории на один уровень выше текущей директории Docker Compose файла.
 
+    networks:
+      - backend  # Подключение к пользовательской сети backend позволяет контейнеру взаимодействовать с другими
+      # контейнерами в той же сети, обеспечивая изоляцию и безопасность.
 
+networks:
+  backend:
+    driver: bridge  # Драйвер bridge создает изолированную сеть для контейнеров, позволяя им общаться друг с другом. Это стандартный драйвер для сетей Docker.

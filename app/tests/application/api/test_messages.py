@@ -25,6 +25,7 @@ async def test_create_chat_success(
     json_data = response.json()
     assert json_data['title'] == title
 
+
 @pytest.mark.asyncio
 async def test_create_chat_failed_text_too_long(
         app: FastAPI,
