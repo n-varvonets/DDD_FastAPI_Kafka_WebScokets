@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from domain.entities.messages import Chat
+from domain.entities.messages import Chat, Message
 
 
 class CreateChatRequestSchema(BaseModel):
@@ -26,3 +26,19 @@ class CreateChatResponseSchema(BaseModel):
 
 class ErrorSchema(BaseModel):
     error: str
+
+
+class CreateMessageRequestSchema(BaseModel):
+    text: str
+
+
+class CreateMessageResponseSchema(BaseModel):
+    oid: str
+    text: str
+
+    @classmethod
+    def from_entity(cls, message: Message) -> 'CreateMessageResponseSchema':
+        return CreateMessageResponseSchema(
+            oid=message.oid,
+            text=message.text.as_generic_type(),
+        )

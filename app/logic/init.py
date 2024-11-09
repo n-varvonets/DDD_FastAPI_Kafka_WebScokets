@@ -3,10 +3,11 @@ from functools import lru_cache
 from punq import Container, Scope  # Импорт контейнера для управления зависимостями
 
 from motor.motor_asyncio import AsyncIOMotorClient
-from infra.repositories.messages.base import BaseChatRepository
+from infra.repositories.messages.base import BaseChatsRepository, BaseMessagesRepository
 
-from infra.repositories.messages.mongo import MongoDBChatRepository
-from logic.commands.messages import CreateChatCommand, CreateChatCommandHandler
+from infra.repositories.messages.mongo import MongoDBChatsRepository, MongoDBMessagesRepository
+from logic.commands.messages import CreateChatCommand, CreateChatCommandHandler, CreateMessageCommand, \
+    CreateMessageCommandHandler
 from logic.mediator import Mediator
 from settings.config import Config
 
@@ -47,12 +48,9 @@ def _init_container() -> Container:
     # Регистрация зависимости: при запросе BaseChatRepository будет использоваться MemoryChatRepository
     container = Container()
 
-    # Регистрация CreateChatCommandHandler так, что его зависимости будут автоматически разрешены контейнером
-    container.register(CreateChatCommandHandler)
-    # Используем container.resolve(CreateChatCommandHandler) для автоматического создания
-    # экземпляра CreateChatCommandHandler с его зависимостями, вместо прямого вызова
-    # CreateChatCommandHandler(), чтобы получить гибкость и возможность подмены зависимостей.
+    #  регитсрация зависимостей от никого уровня к более высокому
 
+    # 0. регистрируем репозиторий (МонгоБД, или мемори)
     # 0.1
     # **Factory**: Хорош для случаев, когда необходима гибкость в создании объектов, например, когда параметры
     # объекта могут изменяться в зависимости от контекста или когда требуется ленивая инициализация объекта.
@@ -62,21 +60,47 @@ def _init_container() -> Container:
     # инициализацией всех его зависимостей и параметров, обеспечивая консистентность и предсказуемость на
     # протяжении всего времени работы приложения.
     container.register(Config, instance=Config(), scope=Scope.singleton)
-
-    def init_chat_mongodb_repository():
-
-        config: Config = container.resolve(Config)
-        client = AsyncIOMotorClient(
+    config: Config = container.resolve(Config)
+    def create_mongo_db_client():
+        return AsyncIOMotorClient(
             config.mongodb_connection_uri,
             serverSelectionTimeoutMS=3000,
         )
-        return MongoDBChatRepository(
+    container.register(AsyncIOMotorClient, factory=create_mongo_db_client, scope=Scope.singleton)
+    client = container.resolve(AsyncIOMotorClient)  # т.к. клиент синглтон, то можно его зарезолвить здесь
+    def init_chats_mongodb_repository() -> MongoDBChatsRepository:
+        return MongoDBChatsRepository(
             mongo_db_client=client,
             mongo_db_db_name=config.mongo_db_db_name,
             mongo_db_collection_name=config.mongo_db_collection_name,
         )
 
-    def init_mediator():
+    def init_messages_mongodb_repository() -> MongoDBMessagesRepository:
+        return MongoDBMessagesRepository(
+            mongo_db_client=client,
+            mongo_db_db_name=config.mongo_db_db_name,
+            mongo_db_collection_name=config.mongo_db_collection_name,
+        )
+    # container.register(BaseChatRepository, MemoryChatRepository)  # без скоупа реквест в swagger будет выполняться в
+    # MemoryChatRepository, т.е. не будет сохранен в бд и каждый реквест будет уникальным(не получим 400)...
+    # поэтмоу этот контейнер делаем синглтоном
+    # container.register(BaseChatRepository, MemoryChatRepository, scope=Scope.singleton)
+    # container.register(BaseChatRepository, MongoDBChatRepository, scope=Scope.singleton)
+    container.register(BaseChatsRepository, factory=init_chats_mongodb_repository, scope=Scope.singleton)  # factory -
+    # Используется, когда создание экземпляра требует предварительной конфигурации или передачи специфических параметров
+    container.register(BaseMessagesRepository, factory=init_messages_mongodb_repository, scope=Scope.singleton)
+
+    # 1. регистрируем команды
+    # Регистрация CreateChatCommandHandler так, что его зависимости будут автоматически разрешены контейнером
+    container.register(CreateChatCommandHandler)
+    # Используем container.resolve(CreateChatCommandHandler) для автоматического создания
+    # экземпляра CreateChatCommandHandler с его зависимостями, вместо прямого вызова
+    # CreateChatCommandHandler(), чтобы получить гибкость и возможность подмены зависимостей.
+    container.register(CreateMessageCommandHandler)
+
+
+    # 2.регистрируем оьект медиатора
+    def init_mediator() -> Mediator:
         """
         Инициализация медиатора с использованием контейнера для управления зависимостями.
         Контейнер используется для разрешения зависимости CreateChatCommandHandler, что упрощает процесс создания
@@ -98,19 +122,12 @@ def _init_container() -> Container:
             CreateChatCommand,
             [container.resolve(CreateChatCommandHandler)],  # Разрешение зависимости через контейнер
         )
+        mediator.register_command(
+            CreateMessageCommand,
+            [container.resolve(CreateMessageCommandHandler)],  # Разрешение зависимости через контейнер
+        )
         return mediator
 
-    # 1. регистрируем репозиторий (МонгоБД, или мемори)
-    # container.register(BaseChatRepository, MemoryChatRepository)  # без скоупа реквест в swagger будет выполняться в
-    # MemoryChatRepository, т.е. не будет сохранен в бд и каждый реквест будет уникальным(не получим 400)...
-    # поэтмоу этот контейнер делаем синглтоном
-    # container.register(BaseChatRepository, MemoryChatRepository, scope=Scope.singleton)
-    # container.register(BaseChatRepository, MongoDBChatRepository, scope=Scope.singleton)
-    container.register(BaseChatRepository, factory=init_chat_mongodb_repository, scope=Scope.singleton)  # factory -
-    # Используется, когда создание экземпляра требует предварительной конфигурации или передачи специфических параметров
-
-
-    # 2.регистрируем оьект медиатора
     container.register(Mediator, factory=init_mediator)  # указывает factory на саму себя (init_mediator),
     # потому что именно эта функция (а не просто вызов конструктора Mediator) обеспечивает полноценное создание
     # и настройку экземпляра Mediator.

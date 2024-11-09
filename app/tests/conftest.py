@@ -1,6 +1,6 @@
 from punq import Container
 from pytest import fixture
-from infra.repositories.messages.base import BaseChatRepository
+from infra.repositories.messages.base import BaseChatsRepository
 from logic.mediator import Mediator
 from tests.fixtures import init_dummy_container
 
@@ -16,7 +16,7 @@ def mediator(container: Container) -> Mediator:
 
 
 @fixture(scope='function')
-def chat_repository(container: Container) -> BaseChatRepository:
+def chat_repository(container: Container) -> BaseChatsRepository:
     """
     #  для теста получим MemoryChatRepository,
     # т.к. регистрируем в конфитесте, а chat_repository прокидывается в сами тесты
@@ -24,7 +24,7 @@ def chat_repository(container: Container) -> BaseChatRepository:
     test_create_chat_command_title_already_exists
     уже используют переданные парамтры-функции из конфитеста
     """
-    return container.resolve(BaseChatRepository)
+    return container.resolve(BaseChatsRepository)
 
 #################################################
 ### old not combined into one container logic ###

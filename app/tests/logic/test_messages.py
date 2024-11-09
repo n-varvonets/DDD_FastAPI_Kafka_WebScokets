@@ -3,7 +3,7 @@ from faker import Faker
 
 from domain.entities.messages import Chat
 from domain.values.messages import Title
-from infra.repositories.messages.base import BaseChatRepository
+from infra.repositories.messages.base import BaseChatsRepository
 from logic.commands.messages import CreateChatCommand
 from logic.exceptions.messages import ChatWithThatTitleAlreadyExitsException
 from logic.mediator import Mediator
@@ -11,7 +11,7 @@ from logic.mediator import Mediator
 
 @pytest.mark.asyncio  # Маркировка теста как асинхронного, чтобы pytest мог корректно выполнять его
 async def test_create_chat_command_success(
-    chat_repository: BaseChatRepository,  # Фикстура репозитория чатов, в которую сохраняются данные чатов - данный параметр уже реализуется в конфтесте
+    chat_repository: BaseChatsRepository,  # Фикстура репозитория чатов, в которую сохраняются данные чатов - данный параметр уже реализуется в конфтесте
     mediator: Mediator,  # Фикстура медиатора, который управляет командами и их обработчиками - данный параметр уже реализуется в конфтесте
         faker: Faker
 ):
@@ -25,7 +25,7 @@ async def test_create_chat_command_success(
 
 @pytest.mark.asyncio
 async def test_create_chat_command_title_already_exists(
-        chat_repository: BaseChatRepository,  # Репозиторий для работы с чатами - данный параметр уже реализуется в конфтесте
+        chat_repository: BaseChatsRepository,  # Репозиторий для работы с чатами - данный параметр уже реализуется в конфтесте
         mediator: Mediator,  # Обработчик команд - данный параметр уже реализуется в конфтесте
         faker: Faker,  # Фейкер для генерации данных
 ):

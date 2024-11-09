@@ -2,11 +2,11 @@ from dataclasses import dataclass, field
 
 from domain.entities.messages import Chat
 from domain.values.messages import Title
-from infra.repositories.messages.base import BaseChatRepository
+from infra.repositories.messages.base import BaseChatsRepository
 
 
 @dataclass
-class MemoryChatRepository(BaseChatRepository):
+class MemoryChatsRepository(BaseChatsRepository):
     """
     MemoryChatRepository — это конкретная реализация, которая хранит данные в памяти.
     Это может быть полезно для тестирования или работы с небольшими данными.
