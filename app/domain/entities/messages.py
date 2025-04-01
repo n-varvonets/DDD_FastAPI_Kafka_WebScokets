@@ -47,7 +47,13 @@ class Chat(BaseEntity):
     # Например, каждый ключ может быть уникальным идентификатором сообщения (например, oid), а значение — объектом Message.
     # Это позволяет эффективно организовать доступ к сообщениям по ключу, обеспечивая быструю навигацию.
 
-
+@dataclass
+class Chat(BaseEntity):
+    title: Title
+    messages: list[Message] = field(
+        default_factory=list,
+        kw_only=True,
+    )
     def add_message(self, message: Message):
         self.messages.append(message)
         self.register_event(
